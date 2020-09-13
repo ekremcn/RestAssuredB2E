@@ -1,4 +1,4 @@
-package basqar.model;
+package basqar.HomeWorks.POJO;
 
 public class _01_BankAcc_POJO {
 

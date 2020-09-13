@@ -1,21 +1,22 @@
 package basqar.HomeWorks;
 
-import basqar.HomeWorks.POJO._01_BankAcc_POJO;
+import basqar.HomeWorks.POJO._02_Location_POJO;
+import basqar.HomeWorks.POJO.School;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookies;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.baseURI;
+import static io.restassured.RestAssured.given;
 
-
-public class _01_BasqarRestAssured {
+public class _02_BasqarRestAssured {
 
     private Cookies cookies;
+    private String randomName;
     private String id;
 
     @BeforeClass
@@ -37,35 +38,40 @@ public class _01_BasqarRestAssured {
     }
 
     @Test
-    public void createBankAcc() {
-        _01_BankAcc_POJO bankAcc_pojo = new _01_BankAcc_POJO();
-        bankAcc_pojo.setName(randomDataGenerator("name"));
-        bankAcc_pojo.setIban(randomDataGenerator("iban"));
-        bankAcc_pojo.setIntegrationCode(randomDataGenerator("integrationCode"));
-        bankAcc_pojo.setCurrency("USD");
-        bankAcc_pojo.setActive(true);
-        bankAcc_pojo.setSchoolId("5c5aa8551ad17423a4f6ef1d");
+    public void createLocation() {
+
+        School school = new School();
+        _02_Location_POJO location_pojo = new _02_Location_POJO();
+
+        location_pojo.setActive(true);
+        location_pojo.setName(randomDataGenerator("name"));
+        location_pojo.setShortName(randomDataGenerator("shortName"));
+        location_pojo.setCapacity(randomDataGenerator("capacity"));
+        location_pojo.setType("CLASS");
+        school.setId();
+        location_pojo.setSchool(school);
 
         id = given()
                 .cookies(cookies)
                 .contentType(ContentType.JSON)
-                .body(bankAcc_pojo)
+                .body(location_pojo)
                 .when()
-                .post("/school-service/api/bank-accounts")
+                .post("/school-service/api/location")
                 .then()
                 .log().body()
                 .statusCode(201)
                 .extract().path("id")
         ;
+
     }
 
-    @Test(dependsOnMethods = "createBankAcc")
-    public void deleteBankAcc(){
+    @Test(dependsOnMethods = "createLocation" )
+    public void deleteLocation(){
 
         given()
                 .cookies(cookies)
                 .when()
-                .delete("/school-service/api/bank-accounts/" + id)
+                .delete("/school-service/api/location/" + id)
                 .then()
                 .statusCode(200)
         ;
@@ -75,13 +81,14 @@ public class _01_BasqarRestAssured {
 
         switch (data) {
             case "name":
-                data = RandomStringUtils.randomAlphabetic(2).toUpperCase() + "Bank";
+                randomName = RandomStringUtils.randomAlphabetic(8);
+                data = randomName;
                 break;
-            case "iban":
-                data = RandomStringUtils.randomAlphabetic(2) + RandomStringUtils.randomNumeric(20);
+            case "shortName":
+                data = randomName.substring(0, 3).toUpperCase();
                 break;
-            case "integrationCode":
-                data = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+            case "capacity":
+                data = String.valueOf((new Random().nextInt(25) + 5));
                 break;
         }
 
